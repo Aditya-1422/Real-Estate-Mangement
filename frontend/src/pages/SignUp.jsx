@@ -1,40 +1,31 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { URL } from '../url.js';
-import axios from 'axios';
+import axios from 'axios'
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import OAuth from '../components/OAuth'
 
-export default function SignUp() {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const navigate = useNavigate();
+const SignUp = () => {
+    const [username, setUser] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState("")
+    const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-        setSuccess('');
-
+        e.preventDefault()
+        setLoading(true)
+        setError("")
         try {
-            const response = await axios.post(`${URL}/api/auth/signup`, { username, email, password }, { withCredentials: true });
-            console.log(response.data);
-            setSuccess('User registered successfully!');
-            setTimeout(() => {
-                navigate('/sign-in');
-            },
-            setLoading(false), 800); // Navigate to the login page after 2 seconds
-        } catch (err) {
-            setLoading(false);
-            if (err.response && err.response.data && err.response.data.message) {
-                setError(err.response.data.message);
-            } else {
-                setError('Registration failed. Please try again.');
-            }
+            const response = await axios.post('http://localhost:4000/api/auth/signup', { username, password, email })
+            alert("Signup successful! Please log in.")
+            console.log(response)
+            navigate('/sign-in')
+        } catch (error) {
+            setError(error.response.data.message || "An error occurred")
+        } finally {
+            setLoading(false)
         }
-    };
+    }
 
     return (
         <div className='p-3 max-w-lg mx-auto'>
@@ -45,32 +36,31 @@ export default function SignUp() {
                     placeholder='username'
                     className='border p-3 rounded-lg'
                     id='username'
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={(e) => { setUser(e.target.value) }}
                 />
                 <input
                     type='email'
                     placeholder='email'
                     className='border p-3 rounded-lg'
                     id='email'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value) }}
                 />
                 <input
                     type='password'
                     placeholder='password'
                     className='border p-3 rounded-lg'
                     id='password'
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value) }}
                 />
+
                 <button
                     disabled={loading}
                     className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
                 >
                     {loading ? 'Loading...' : 'Sign Up'}
                 </button>
-            </form>
+                <OAuth/>
+                </form>
             <div className='flex gap-2 mt-5'>
                 <p>Have an account?</p>
                 <Link to={'/sign-in'}>
@@ -78,7 +68,8 @@ export default function SignUp() {
                 </Link>
             </div>
             {error && <p className='text-red-500 mt-5'>{error}</p>}
-            {success && <p className='text-green-500 mt-5'>{success}</p>}
         </div>
-    );
+    )
 }
+
+export default SignUp
