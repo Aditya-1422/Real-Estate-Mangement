@@ -2,7 +2,7 @@ import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 import { app } from '../firebase';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-// import axios from 'axios';
+import axios from 'axios';
 import { signInSuccess, signInFailure, signInStart } from '../redux/user/userSlice';
 
 const OAuth = () => {
@@ -16,11 +16,12 @@ const OAuth = () => {
             const provider = new GoogleAuthProvider();
             const auth = getAuth(app);
             const result = await signInWithPopup(auth, provider);
-            console.log(result)
-            // const response = await axios.post('/api/auth/google', {
-            //     username: result.user.displayName,
-            //     email: result.user.email
-            // });
+            
+            const response = await axios.post("http://localhost:4000/api/auth/google", {
+                username: result.user.displayName,
+                email: result.user.email,
+                photoURL: result.user.photoURL // Fix the typo here
+            });
 
             dispatch(signInSuccess(response.data));
             navigate('/');

@@ -2,6 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose';
 import cors from 'cors'
+import bodyParser from 'body-parser';
 import authRouter from './router/authRouter.js'
 
 dotenv.config({path:'backend/config.env'})
@@ -23,6 +24,8 @@ app.listen(process.env.PORT,()=>{
 
 app.use(express.json())
 app.use(cors({origin: 'http://localhost:3000', credentials: true}))
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/auth",authRouter);
 

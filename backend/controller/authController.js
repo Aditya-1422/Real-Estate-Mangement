@@ -33,7 +33,7 @@ export const signIn = async (req, res, next) =>{
 
     try {
         const user = await User.findOne({email});
-
+        console.log("After login: "+req.body.name)
         if (!user) {
             return next(errorHandler(409, "User does not exists!!"));
         }
@@ -62,3 +62,25 @@ export const signOut = async (req, res, next) => {
         next(error)
     }
 }
+
+export const google = async (req, res, next) => {
+    try {
+        console.log(req.body); // Log the request body to check incoming data
+        const { username, email, photoURl } = req.body;
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            const generatePassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+            const genHashPassword = bcrypt.hashSync(generatePassword, 10);
+            user = await User.create({ username, email, password: genHashPassword, photoURL: photoURl });
+        }
+
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+        const { password, ...rest } = user._doc;
+
+        return res.cookie("access_token", token, { httpOnly: true }).status(200).json({ success: true, message: "User logged in through Google successfully!!!", user: rest });
+
+    } catch (error) {
+        next(error);
+    }
+};
