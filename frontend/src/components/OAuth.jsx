@@ -16,11 +16,11 @@ const OAuth = () => {
             const provider = new GoogleAuthProvider();
             const auth = getAuth(app);
             const result = await signInWithPopup(auth, provider);
-            
+            console.log(result)
             const response = await axios.post("http://localhost:4000/api/auth/google", {
                 username: result.user.displayName,
                 email: result.user.email,
-                photoURL: result.user.photoURL // Fix the typo here
+                photoURL: result.user.photoURL 
             });
 
             dispatch(signInSuccess(response.data));

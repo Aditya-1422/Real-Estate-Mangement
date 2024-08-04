@@ -65,20 +65,26 @@ export const signOut = async (req, res, next) => {
 
 export const google = async (req, res, next) => {
     try {
-        console.log(req.body); // Log the request body to check incoming data
-        const { username, email, photoURl } = req.body;
+        console.log(req.body); 
+        const { username, email, photoURL } = req.body;
         let user = await User.findOne({ email });
 
         if (!user) {
             const generatePassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
             const genHashPassword = bcrypt.hashSync(generatePassword, 10);
-            user = await User.create({ username, email, password: genHashPassword, photoURL: photoURl });
+            user = await User.create({ username, email, password: genHashPassword, photoURL });
+        } else if (!user.photoURL) {
+            // Update user's photoURL if it is missing
+            user.photoURL = photoURL;
+            await user.save();
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
         const { password, ...rest } = user._doc;
 
-        return res.cookie("access_token", token, { httpOnly: true }).status(200).json({ success: true, message: "User logged in through Google successfully!!!", user: rest });
+        return res.cookie("access_token", token, { httpOnly: true })
+            .status(200)
+            .json({ success: true, message: "User logged in through Google successfully!!!", user: rest });
 
     } catch (error) {
         next(error);
